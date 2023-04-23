@@ -15,7 +15,6 @@ fileprivate var kivy_viewController: UIViewController? {
 
 class BannerAd {
     
-    
     var banner: GADBannerView?
     private var scaleFactor: CGFloat = 2.0
     var height: Double
@@ -69,7 +68,6 @@ class BannerAd {
 
 class StaticAd {
     
-    
     var banner: GADBannerView?
     private var scaleFactor: CGFloat = 2.0
     var height: Double
@@ -92,8 +90,6 @@ class StaticAd {
     func show(delegate: GADBannerViewDelegate) {
         if banner == nil {
             guard
-
-                
                 let kivy_vc = kivy_viewController,
                 let view = kivy_vc.view
             else { return }
@@ -150,4 +146,25 @@ class FullScreenAd {
         )
         
     }
+}
+
+extension PyFullScreenContentDelegate: GADFullScreenContentDelegate {}
+extension PyFullScreenContentDelegate: PyConvertible {
+    var pyObject: PythonObject { .init(getter: pyPointer) }
+    var pyPointer: PyPointer { create_pyPyFullScreenContentDelegate(self) }
+}
+
+extension GADFullScreenPresentingAd {
+    var pyPointer: PyPointer { create_pyGADFullScreenPresentingAd(self) }
+}
+
+extension GADBannerView: PyConvertible {
+    public var pyObject: PythonObject { .init(getter: pyPointer) }
+    public var pyPointer: PyPointer { create_pyGADBannerView(self) }
+}
+
+extension PyBannerViewDelegate: GADBannerViewDelegate {}
+extension PyBannerViewDelegate: PyConvertible {
+    var pyObject: PythonObject { .init(getter: pyPointer) }
+    var pyPointer: PyPointer { create_pyPyBannerViewDelegate(self) }
 }

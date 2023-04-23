@@ -1,10 +1,15 @@
 from swift_tools.swift_types import *
 
+"import GoogleMobileAds"
+
+
 @wrapper(py_init=False)
 class GADBannerView: ...
 
-@wrapper(new_class=True)
+@wrapper(new=True)
 class PyBannerViewDelegate:
+
+    def __init__(self, callback: object): ...
 
     class Callbacks:
         
@@ -33,8 +38,10 @@ class PyBannerViewDelegate:
 @wrapper(py_init=False)
 class GADFullScreenPresentingAd: ...
 
-@wrapper(new_class=True)
-class PyGADFullScreenContentDelegate:
+@wrapper(new=True)
+class PyFullScreenContentDelegate:
+
+    def __init__(self, callback: object): ...
 
     class Callbacks:
         
@@ -60,7 +67,7 @@ class PyGADFullScreenContentDelegate:
 @wrapper
 class BannerAd:
 
-    def __init__(self, unit_id: str, height: int): ...
+    def __init__(self, unit_id: str, height: float): ...
 
     def show(self, delegate: PyBannerViewDelegate): ...
 
@@ -69,7 +76,7 @@ class BannerAd:
 @wrapper
 class StaticAd:
 
-    def __init__(self, unit_id: str, height: int): ...
+    def __init__(self, unit_id: str, height: float): ...
 
     def show(self, delegate: PyBannerViewDelegate): ...
 
@@ -80,6 +87,6 @@ class FullScreenAd:
 
     def __init__(self, unit_id: str): ...
 
-    def show(self, delegate: PyGADFullScreenContentDelegate): ...
+    def show(self, delegate: PyFullScreenContentDelegate): ...
 
     def disable(self): ...

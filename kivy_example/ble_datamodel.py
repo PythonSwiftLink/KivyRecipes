@@ -16,7 +16,7 @@ class CBDeviceDataModel(EventDispatcher):
     delegate: PyCBPeripheralDelegate # wrap of class in swift that has CBPeripheralDelegate
     current_battery_level = NumericProperty(0)
     current_label = StringProperty('')
-
+    current_rssi = NumericProperty(0)
     
 
     def __init__(self) -> None:
@@ -51,7 +51,6 @@ class CBDeviceDataModel(EventDispatcher):
         if value:
             self.current_battery_level = value[0]
             self.current_label = f"{peripheral.name}'s battery level is {value[0]}%"
-            print("Did update value for characteristic", current_thread())
             print(self.current_label)
 
     def peripheralDidUpdateName(self, peripheral: CBPeripheral):
@@ -67,7 +66,10 @@ class CBDeviceDataModel(EventDispatcher):
         ...
 
     def didReadRSSI(self, peripheral: CBPeripheral, RSSI: int, error: Optional[str]):
-        ...
+        print("didReadRSSI", peripheral.name, RSSI)
+        self.current_rssi = RSSI
+        
+
 
     def didOpenChannel(self, peripheral: CBPeripheral, channel: Optional[CBL2CAPChannel], error: Optional[str]):
         ...
@@ -109,17 +111,19 @@ class BT_Manager(EventDispatcher):
     #callback
 
 
-    def add_peripheral(self, peripheral: CBPeripheral):
+    def add_peripheral(self, peripheral: CBPeripheral, rssi: int):
         #self.new_peripheral = peripheral
 
         self.dispatch("on_peripheral",True,peripheral)
         #peripheral.delegate = self.current_device_data.delegate
+        #print(self.current_device_data.delegate)
+        
         #self.periphals.append(peripheral)
 
     #callback
     def remove_peripheral(self, peripheral: CBPeripheral):
         #print("remove_peripheral", peripheral.name)
-        self.dispatch("on_peripheral",False,peripheral)
+        self.dispatch("on_peripheral",False,peripheral, 0)
     
     #callback
 
@@ -130,5 +134,5 @@ class BT_Manager(EventDispatcher):
     def connect_status(self, status: bool):
         print("connect_status",status)
 
-    def on_peripheral(self,a,b): ...
+    def on_peripheral(self,wid,peripheral,rssi): ...
     

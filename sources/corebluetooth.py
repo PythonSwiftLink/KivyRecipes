@@ -222,6 +222,11 @@ class CBPeripheral:
     services = property(Optional[list[CBService]], setter=False)
     delegate = property(Optional[PyCBPeripheralDelegate], protocol=True)
     
+    identifier = property(CBUUID, setter=False)
+
+    _state = property(int, setter=False)
+
+    def __str__(self) -> str: ...
 
     @no_labels
     @no_protocol
@@ -258,6 +263,7 @@ class CBPeripheral:
     @func_options(call_target="readValue", args_alias={"descriptor": "for"})
     def readDescriptor(descriptor: CBDescriptor): ...
 
+    def readRSSI(self): ...
 
 @wrapper(py_init=False)
 class CBService:
@@ -287,7 +293,7 @@ class CBCentralManager:
 
     class Callbacks:
 
-        def add_peripheral(self, peripheral: CBPeripheral): ...
+        def add_peripheral(self, peripheral: CBPeripheral, rssi: int): ...
         def remove_peripheral(self, peripheral: CBPeripheral): ...
 
         def connect_status(self, status: bool): ...

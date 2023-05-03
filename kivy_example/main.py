@@ -11,7 +11,9 @@ from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.button import MDRaisedButton, MDFlatButton
 
 from kivymd.uix.dialog import MDDialog
-from kivy.properties import ListProperty, ObjectProperty
+from kivy.properties import ListProperty, ObjectProperty, StringProperty
+
+from kivy.clock import Clock
 
 from ble_datamodel import BT_Manager, CBPeripheral
 
@@ -24,8 +26,15 @@ class BTDeviceIcon(MDRaisedButton):
 
     def __init__(self, **kwargs):
         if "peripheral" in kwargs:
-            self.peripheral = kwargs.pop("peripheral")
-            #kwargs["text"] = self.periphal.name
+            peripheral = kwargs.pop("peripheral")
+
+            name  = peripheral.name
+            if not name:
+                name = str(peripheral)
+            
+            self.peripheral = peripheral
+            self.text = name
+
         super(BTDeviceIcon, self).__init__(**kwargs)
         self.dialog = None
     
@@ -35,6 +44,8 @@ class BTDeviceIcon(MDRaisedButton):
         peripheral.delegate = bt.current_device_data.delegate
         bt.manager.connect(peripheral)
         self.dialog.dismiss()
+
+        Clock.schedule_interval(lambda dt: self.peripheral.readRSSI(), 5)
     
     def close_dialog(self, wid):
         self.dialog.dismiss()
@@ -72,21 +83,14 @@ class BTDeviceList(MDList):
         print("on_app", app)
         app.bluetooth.bind(on_peripheral=self.on_peripheral)
 
-    def on_peripheral(self, _, state: bool, peripheral: CBPeripheral):
-        
-
+    def on_peripheral(self, _, state: bool, peripheral: CBPeripheral, rssi: int):
         if state:
 
-
-    #def new_peripheral(self, _, peripheral: CBPeripheral):
-            if peripheral.name: # if name is None dont add label
-                icon = BTDeviceIcon(peripheral=peripheral)
-                self.add_widget(icon)
-                self.devices.append(icon)
+            #if peripheral.name: # if name is None dont add label
+            icon = BTDeviceIcon(peripheral=peripheral)
+            self.add_widget(icon)
+            self.devices.append(icon)
         else:
-    
-    #def delete_peripheral(self, _, peripheral: CBPeripheral):
-
             for icon in self.devices:
                 _peripheral = icon.peripheral
                 if _peripheral.name == peripheral.name:
@@ -99,7 +103,7 @@ class BTDeviceList(MDList):
 Builder.load_string("""
 <BTDeviceIcon>:
     app: app
-    text: self.peripheral.name
+    #text: self.name
     font_size: dp(24)
     size_hint_y: None
     height: dp(48)
@@ -121,20 +125,34 @@ Builder.load_string("""
 <BTDeviceMainView>:
     orientation: "vertical"
     md_bg_color: "black"#app.theme_cls.primary_color
-    MDLabel:
-        font_size: dp(24)
-        text: app.bluetooth.current_device_data.current_label
-        theme_text_color: "Custom"
-        text_color: "red"
+    
+    MDBoxLayout:
         size_hint_y: None
-        height: 80
-    MDProgressBar:
-        size_hint_y: None
-        height: 20
-        max: 100
-        value: app.bluetooth.current_device_data.current_battery_level
-    FloatLayout:
-        
+        height: dp(104)
+        MDBoxLayout:
+            orientation: "vertical"
+            MDLabel:
+                font_size: dp(24)
+                text: app.bluetooth.current_device_data.current_label
+                theme_text_color: "Custom"
+                text_color: "red"
+            MDProgressBar:
+                size_hint_y: None
+                height: dp(24)
+                max: 100
+                value: app.bluetooth.current_device_data.current_battery_level
+            
+
+    
+        MDLabel:
+            theme_text_color: "Custom"
+            text_color: "red"
+            font_size: dp(48)
+            size_hint: 0.1, None
+            text: str(app.bluetooth.current_device_data.current_rssi)
+
+    
+    MDScrollView:    
         BTDeviceList
             
 """)

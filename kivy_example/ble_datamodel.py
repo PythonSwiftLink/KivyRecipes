@@ -111,14 +111,8 @@ class BT_Manager(EventDispatcher):
     #callback
 
 
-    def add_peripheral(self, peripheral: CBPeripheral, rssi: int):
-        #self.new_peripheral = peripheral
-
-        self.dispatch("on_peripheral",True,peripheral)
-        #peripheral.delegate = self.current_device_data.delegate
-        #print(self.current_device_data.delegate)
-        
-        #self.periphals.append(peripheral)
+    def didDiscover(self, peripheral: CBPeripheral, rssi: int):
+        self.dispatch("on_peripheral",True,peripheral,rssi)
 
     #callback
     def remove_peripheral(self, peripheral: CBPeripheral):

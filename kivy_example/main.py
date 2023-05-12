@@ -11,7 +11,7 @@ from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.button import MDRaisedButton, MDFlatButton
 
 from kivymd.uix.dialog import MDDialog
-from kivy.properties import ListProperty, ObjectProperty, StringProperty
+from kivy.properties import ListProperty, ObjectProperty, StringProperty, DictProperty, NumericProperty
 
 from kivy.clock import Clock
 
@@ -23,17 +23,17 @@ from ble_datamodel import BT_Manager, CBPeripheral
 class BTDeviceIcon(MDRaisedButton):
     peripheral: CBPeripheral
     app: MDApp = ObjectProperty(None)
+    label = StringProperty("")
+    rssi = NumericProperty(0)
 
     def __init__(self, **kwargs):
         if "peripheral" in kwargs:
             peripheral = kwargs.pop("peripheral")
-
-            name  = peripheral.name
-            if not name:
-                name = str(peripheral)
-            
+            self.rssi = kwargs.pop("rssi")
+           
             self.peripheral = peripheral
-            self.text = name
+            self.label = str(peripheral)
+
 
         super(BTDeviceIcon, self).__init__(**kwargs)
         self.dialog = None
@@ -79,31 +79,45 @@ class BTDeviceList(MDList):
     app = ObjectProperty(None)
     devices: list[BTDeviceIcon] = []#ListProperty([])
 
-    def on_app(self, wid, app):
-        print("on_app", app)
-        app.bluetooth.bind(on_peripheral=self.on_peripheral)
+    _devices: dict[int,BTDeviceIcon] = {}
 
     def on_peripheral(self, _, state: bool, peripheral: CBPeripheral, rssi: int):
         if state:
 
-            #if peripheral.name: # if name is None dont add label
-            icon = BTDeviceIcon(peripheral=peripheral)
-            self.add_widget(icon)
-            self.devices.append(icon)
-        else:
-            for icon in self.devices:
-                _peripheral = icon.peripheral
-                if _peripheral.name == peripheral.name:
-                    self.remove_widget(icon)
-                    self.devices.remove(icon)
-                    return
+            _devices = self._devices
+            key = hash(peripheral)
+            if key in _devices:
+                _devices[key].rssi = rssi
+            else:
+                icon = BTDeviceIcon(peripheral=peripheral, rssi=rssi)
+                self.add_widget(icon)
+                _devices[key] = icon
+                
+        # if state:
 
+        #     #if peripheral.name: # if name is None dont add label
+        #     icon = BTDeviceIcon(peripheral=peripheral)
+        #     self.add_widget(icon)
+        #     self.devices.append(icon)
 
+        #     self._devices.append(BTDeviceIcon(peripheral=peripheral
+        # else:
+        #     for icon in self.devices:
+        #         _peripheral = icon.peripheral
+        #         if _peripheral.name == peripheral.name:
+        #             self.remove_widget(icon)
+        #             self.devices.remove(icon)
+        #             return
+
+    def on_app(self, wid, app):
+        print("on_app", app)
+        app.bluetooth.bind(on_peripheral=self.on_peripheral)
+        
 ### KV ###
 Builder.load_string("""
 <BTDeviceIcon>:
     app: app
-    #text: self.name
+    text: f"{self.label} - rssi: {self.rssi}"
     font_size: dp(24)
     size_hint_y: None
     height: dp(48)

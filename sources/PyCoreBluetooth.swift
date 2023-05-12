@@ -10,75 +10,17 @@ import CoreBluetooth
 //
 //}
 
-class PyCBPeripheralDelegateTest: NSObject, CBPeripheralDelegate {
-
-    override init() {
+extension UUID: PyConvertible {
+    public var pyObject: PythonObject {
+        .init(getter: pyPointer)
     }
-
-    func peripheralDidUpdateName(_ peripheral: CBPeripheral) {
-        fatalError()
+    
+    public var pyPointer: PyPointer {
+        uuidString.pyPointer
     }
-
-    func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
-        fatalError()
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        fatalError()
-        
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        fatalError()
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
-        fatalError()
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        fatalError()
-    }
-
-//    func peripheral(_ peripheral: CBPeripheral, didDiscoverIncludedServicesFor service: CBService, error: Error?) {
-//        fatalError()
-//        //py_callback?.didDiscoverIncludedServices(peripheral: peripheral.pyPointer, service: service.pyPointer, error: error?.localizedDescription)
-//    }
-
-    func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
-        fatalError()
-        //py_callback?.didReadRSSI(peripheral: peripheral.pyPointer, RSSI: Int(truncating: RSSI), error: error?.localizedDescription)
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: Error?) {
-        fatalError()
-        //py_callback?.didOpenChannel(peripheral: peripheral.pyPointer, channel: channel?.pyPointer ?? .PyNone, error: error?.localizedDescription)
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
-        fatalError()
-        //py_callback?.didModifyServices(peripheral: peripheral.pyPointer, invalidatedServices: invalidatedServices.pyPointer)
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        fatalError()
-
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
-        fatalError()
-        
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        fatalError()
-
-    }
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
-        fatalError()
-    }
+    
+    
 }
-
 
 extension PyCBPeripheralDelegate: CBPeripheralDelegate {
     
@@ -141,15 +83,15 @@ extension PyCBCentralManager: CBCentralManagerDelegate {
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         
-        
-        if !peripherals.contains(peripheral) {
-            peripherals.append(peripheral)
-            print("didDiscover",RunLoop.current == RunLoop.main)
+//
+//        if !peripherals.contains(peripheral) {
+//            peripherals.append(peripheral)
+////            print("didDiscover",RunLoop.current == RunLoop.main)
             DispatchQueue.main.async {
-                self.py_callback?.add_peripheral(peripheral: peripheral)
+                self.py_callback?.didDiscover(peripheral: peripheral, rssi: Int(truncating: RSSI))
             }
             
-        }
+//        }
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {

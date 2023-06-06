@@ -34,7 +34,7 @@ class BannerAd {
         //py?.banner_did_load(w: 0, h: 0)
     }
     
-    func show(delegate: GADBannerViewDelegate) {
+    func show(delegate: GADBannerViewDelegate? = nil) {
         guard
             let kivy_vc = kivy_viewController,
             let view = kivy_vc.view
@@ -88,7 +88,7 @@ class StaticAd {
         //py?.banner_did_load(w: 0, h: 0)
     }
     
-    func show(delegate: GADBannerViewDelegate) {
+    func show(delegate: GADBannerViewDelegate? = nil) {
         if banner == nil {
             guard
                 let kivy_vc = kivy_viewController,
@@ -129,7 +129,7 @@ class FullScreenAd {
         adUnitID = unit_id
     }
     
-    func show(delegate: GADFullScreenContentDelegate) {
+    func show(delegate: GADFullScreenContentDelegate? = nil) {
         let request = GADRequest()
         GADInterstitialAd.load(
             withAdUnitID: adUnitID,
@@ -139,7 +139,9 @@ class FullScreenAd {
                     print("Failed to load interstitial ad with error: \(error.localizedDescription)")
                     return
                 }
+                
                 ad?.fullScreenContentDelegate = delegate
+                
                 guard let kivy = kivy_viewController else {return}
                 banner = ad
                 banner?.present(fromRootViewController: kivy)

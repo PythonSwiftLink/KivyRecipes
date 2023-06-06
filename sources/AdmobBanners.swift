@@ -47,7 +47,8 @@ class BannerAd {
             let viewWidth = frame.width
             let scale = kivy_vc.view.contentScaleFactor
             scaleFactor = scale
-            let banner = GADBannerView(adSize: GADAdSizeFromCGSize(CGSize(width: viewWidth, height: self.height / scale)))
+            let banner = GADBannerView(adSize: GADAdSizeFromCGSize(CGSize(width: viewWidth / 2 , height: self.height / scale)))
+            
             banner.adUnitID = adUnitID
             banner.delegate = delegate
             banner.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +56,7 @@ class BannerAd {
             kivy_vc.view.addSubview(banner)
             
             let horizontalConstraint = NSLayoutConstraint(item: banner, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0)
-            let verticalConstraint = NSLayoutConstraint(item: banner, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottomMargin, multiplier: 1, constant: 0)
+            let verticalConstraint = NSLayoutConstraint(item: banner, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0)
             
             kivy_vc.view.addConstraints([horizontalConstraint, verticalConstraint])
             banner.load(GADRequest())
@@ -148,7 +149,6 @@ class FullScreenAd {
     }
 }
 
-extension PyFullScreenContentDelegate: GADFullScreenContentDelegate {}
 extension PyFullScreenContentDelegate: PyConvertible {
     var pyObject: PythonObject { .init(getter: pyPointer) }
     var pyPointer: PyPointer { create_pyPyFullScreenContentDelegate(self) }
@@ -156,6 +156,9 @@ extension PyFullScreenContentDelegate: PyConvertible {
 
 extension GADFullScreenPresentingAd {
     var pyPointer: PyPointer { create_pyGADFullScreenPresentingAd(self) }
+    func __repr__() -> String {
+        self.debugDescription ?? "no info"
+    }
 }
 
 extension GADBannerView: PyConvertible {
@@ -163,8 +166,8 @@ extension GADBannerView: PyConvertible {
     public var pyPointer: PyPointer { create_pyGADBannerView(self) }
 }
 
-extension PyBannerViewDelegate: GADBannerViewDelegate {}
 extension PyBannerViewDelegate: PyConvertible {
     var pyObject: PythonObject { .init(getter: pyPointer) }
     var pyPointer: PyPointer { create_pyPyBannerViewDelegate(self) }
 }
+

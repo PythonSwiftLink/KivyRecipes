@@ -7,13 +7,15 @@ from swift_tools.swift_types import *
 class GADBannerView: ...
 
 @wrapper(new=True)
-class PyBannerViewDelegate:
+class PyBannerViewDelegate(NSObject):
 
-    def __init__(self, callback: object): ...
+    def __init__(self,callback: object): ...
 
+    @protocols("GADBannerViewDelegate")
     class Callbacks:
         
-        @func_options(no_labels={"bannerView":True})
+        #@func_options(no_labels={"bannerView":True})
+        @no_labels(bannerView=True)
         def bannerViewDidReceiveAd(self, bannerView: GADBannerView): ...
 
         @func_options(no_labels={"bannerView":True})
@@ -36,13 +38,17 @@ class PyBannerViewDelegate:
 
 
 @wrapper(py_init=False)
-class GADFullScreenPresentingAd: ...
+class GADFullScreenPresentingAd:
+    def __repr__(self) -> str: ...
 
 @wrapper(new=True)
-class PyFullScreenContentDelegate:
+class PyFullScreenContentDelegate(NSObject):
 
-    def __init__(self, callback: object): ...
+    def __init__(self,callback: object): ...
 
+    
+
+    @protocols("GADFullScreenContentDelegate")
     class Callbacks:
         
         @func_options(no_labels={"ad":True})
@@ -88,5 +94,3 @@ class FullScreenAd:
     def __init__(self, unit_id: str): ...
 
     def show(self, delegate: PyFullScreenContentDelegate): ...
-
-    def disable(self): ...

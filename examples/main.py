@@ -86,8 +86,8 @@ class MyApp(App):
         return MainView()
 
     def trigger_full_ad(self):
-        #self.fullscreen_ad.show(self.fullscreen_delegate)
-        self.fullscreen_ad._show()
+        self.fullscreen_ad.show(self.fullscreen_delegate)
+    
 
     def toggle_banner(self, state):
         if state == "down":
